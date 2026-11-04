@@ -1,22 +1,250 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>SAYIDO BULK v2.1 FULL MORAN</title><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet"><link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Manrope',sans-serif;background:#FAF8F5;color:#1A1A1A;padding:16px}.header{background:#111;color:#fff;padding:24px;border-radius:20px;text-align:center;margin-bottom:20px}.card{background:#fff;border-radius:16px;padding:18px;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:16px;border:1px solid #eee}.btn{background:#111;color:#fff;border:none;padding:12px 18px;border-radius:12px;font-weight:600;cursor:pointer}.btn-gold{background:#D4AF37;color:#111}.grid{display:grid;gap:12px}.inv-card{border:1px solid #E8D0D8;border-radius:16px;padding:14px;background:#FFFEFB}.badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;background:#F5EFE6;margin:2px}.actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.actions button{padding:8px 10px;border-radius:10px;border:1px solid #ddd;background:#fff;font-size:12px;cursor:pointer}.actions button.primary{background:#111;color:#fff}.mockup-preview{width:260px;height:540px;border:12px solid #111;border-radius:36px;overflow:hidden;margin:10px auto;background:#000}.mockup-preview iframe{width:100%;height:100%;border:none}input,textarea,select{width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;margin-top:6px;font-size:14px}.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:99;padding:20px}.modal.active{display:flex}.modal-box{background:#fff;border-radius:20px;padding:20px;max-width:480px;width:100%;max-height:90vh;overflow:auto}</style></head><body><div class="header"><h1>SAYIDO BULK v2.1 FULL</h1><p>100 Tema Beda WARNA - Full Moran Template - Mockup HP - Video - Editor</p><p style="font-size:11px;opacity:.6;margin-top:6px">FIX: template sekarang FULL kayak Moran asli, bukan kosong!</p></div><div class="card"><h3>🔐 Admin</h3><input type="password" id="adminPass" placeholder="sayido123"><button class="btn" onclick="checkAdmin()">Aktifkan</button><span id="adminStatus"></span></div><div class="card"><button class="btn btn-gold" onclick="download100Beda()">📥 Download 100 Tema Beda Excel</button></div><div class="card"><input type="file" id="excelFile" accept=".xlsx,.xls"><div id="uploadInfo"></div><button class="btn" style="width:100%;padding:16px;margin-top:10px" onclick="generateBulk()">🎬 GENERATE 100 FULL TEMPLATE</button><div style="background:#eee;height:10px;border-radius:10px;margin-top:10px"><div id="prog" style="height:100%;width:0%;background:#111"></div></div><div id="progText">0/100</div></div><div class="card"><h3>Hasil</h3><div id="results" class="grid"></div></div><div id="editModal" class="modal"><div class="modal-box"><h3>Edit</h3><div id="editForm"></div><button class="btn" onclick="saveEdit()">Simpan</button><button class="btn" onclick="closeModal()">Tutup</button></div></div><div id="mockupModal" class="modal"><div class="modal-box" style="text-align:center"><h3>Mockup</h3><div id="mockupContainer"></div><button class="btn" onclick="downloadMockupPNG()">Download PNG</button><button class="btn" onclick="closeMockup()">Tutup</button></div></div><script>
-const THEMES_100=[["Moran Luxury black tuxedo gold","#D4AF37","Moran Luxury","Sheraton Surabaya"],["Glamour Night black gold bokeh","#111111","Glamour Night","Grand Ballroom"],["Royal Navy blue gold royal","#0F2A4A","Royal Navy","The Ritz Carlton"],["Rustic Boho sage terracotta dried","#8B7355","Rustic Boho","Garden Villa"],["Japandi Minimal white beige clean","#E8D5C4","Japandi Minimal","Rooftop Garden"],["Floral Romantic pink watercolor","#FFB6C1","Floral Romantic","Garden Villa"],["Moody Burgundy black luxury","#800020","Moody Burgundy","Grand Ballroom"],["Beach Tropical palm sand beige ocean","#D2B48C","Beach Tropical","Beach Resort"],["Jawa Traditional kebaya batik pendopo","#8B4513","Jawa Traditional","Pendopo Agung"],["Sunda Pastel peach garden","#FFCBA4","Sunda Pastel","Garden Villa"],["Chinese Oriental red gold","#C41E3A","Chinese Oriental","Grand Ballroom"],["Korean Minimal white cherry blossom","#FFF0F5","Korean Minimal","Garden Villa"],["Industrial Loft grey concrete","#808080","Industrial Loft","Urban Loft"],["Vintage Cream lace classic","#F5F5DC","Vintage Cream","Classic Garden"],["Sunset Boho orange dusty pink desert","#FF7F50","Sunset Boho","Desert Villa"],["Emerald Luxury green gold ballroom","#2D5A27","Emerald Luxury","Grand Ballroom"],["Lilac Dream purple lavender","#C8A2C8","Lilac Dream","Garden Villa"],["Champagne Glam gold glitter night","#C9A86A","Champagne Glam","Ballroom"],["Forest Woodland green moss","#228B22","Forest Woodland","Forest Venue"],["Sky Airy blue cloud daytime","#87CEEB","Sky Airy","Rooftop"],["Maroon Royal velvet gold palace","#800000","Maroon Royal","Palace Ballroom"],["Peach Fuzz coral modern","#FFBE98","Peach Fuzz 2024","Modern Venue"],["Charcoal Modern grey silver","#36454F","Charcoal Modern","Urban Loft"],["Ivory Pearl timeless elegant","#FFFFF0","Ivory Pearl","Classic Ballroom"],["Terracotta Med clay Mediterranean","#E2725B","Terracotta Med","Villa Med"],["Midnight Star blue star evening","#191970","Midnight Star","Rooftop Night"],["Blush Romantic pink gold feminine","#FFC0CB","Blush Romantic","Garden"],["Dusty Sage blue sage vintage","#5B7C99","Dusty Sage","Rustic Garden"],["Chocolate Autumn brown gold cozy","#7B3F00","Chocolate Autumn","Autumn Villa"],["Olive Natural green gold outdoor","#808000","Olive Natural","Outdoor Garden"]];
-  let isAdmin=false;let generatedHTMLs=[];let currentEditIndex=null;
-function checkAdmin(){if(document.getElementById('adminPass').value==='sayido123'){isAdmin=true;document.getElementById('adminStatus').innerText='✅ Admin';renderResults();}else alert('salah');}
-function download100Beda(){let rows=[["prompt","groom","bride","tanggal","maps","ayah_groom","ibu_groom","ayah_bride","ibu_bride","warna","lagu","tema"]];const grooms=["Kevin","Ryo","Dimas","Arif","Bima","Reza","Fajar","Galih","Hendry","Wijaya","Arya","Bagas","Cakra","Dion","Eka"];const brides=["Monica","Amanda","Putri","Sari","Dewi","Lestari","Ratna","Yuki","Maia","Nadia","Citra","Bella","Dinda","Elsa","Fani"];for(let i=0;i<100;i++){let t=THEMES_100[i%THEMES_100.length];let g=grooms[i%grooms.length]+(i>=15?i:'');let b=brides[i%brides.length]+(i>=15?i:'');rows.push([t[0]+" "+g+" "+b+" "+t[2],g,b,`2025-${String((i%12)+1).padStart(2,'0')}-${String((i%28)+1).padStart(2,'0')}`,t[3],"Bpk. Hendry","Ibu Susi","Bpk. Wijaya","Ibu Dewi",t[1],"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",t[2]]);}let ws=XLSX.utils.aoa_to_sheet(rows);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"100_Tema");XLSX.writeFile(wb,"SAYIDO_100_FULL_MORAN.xlsx");}
-let uploadedData=[];
-document.getElementById('excelFile').addEventListener('change',e=>{let f=e.target.files[0];let r=new FileReader();r.onload=ev=>{let d=new Uint8Array(ev.target.result);let wb=XLSX.read(d,{type:'array'});let ws=wb.Sheets[wb.SheetNames[0]];uploadedData=XLSX.utils.sheet_to_json(ws);document.getElementById('uploadInfo').innerHTML=`✅ ${uploadedData.length} loaded`;};r.readAsArrayBuffer(f);});
-function generateBulk(){if(uploadedData.length===0){alert('upload dulu');return;}generatedHTMLs=[];uploadedData.forEach((row,i)=>{setTimeout(()=>{generatedHTMLs[i]=generateFullMoran(row,i);document.getElementById('prog').style.width=((i+1)/uploadedData.length*100)+'%';document.getElementById('progText').innerText=`${i+1}/${uploadedData.length}`;if(i===uploadedData.length-1)renderResults();},i*20);});}
-function generateFullMoran(row,idx){let warna=row.warna||'#D4AF37';let groom=row.groom||'Kevin';let bride=row.bride||'Monica';let tanggal=row.tanggal||'2025-12-29';let maps=row.maps||'Sheraton Surabaya';let prompt=row.prompt||'luxury';let tema=row.tema||'Moran Luxury';let ayah_groom=row.ayah_groom||'Bpk. Hendry';let ibu_groom=row.ibu_groom||'Ibu Susi';let ayah_bride=row.ayah_bride||'Bpk. Wijaya';let ibu_bride=row.ibu_bride||'Ibu Dewi';let lagu=row.lagu||'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';let id=`${groom}-${bride}-${Date.now()+idx}`.toLowerCase().replace(/[^a-z0-9-]/g,'-');let html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${groom} & ${bride} - ${tema}</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet"><link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Manrope',sans-serif;background:#FAF8F5;color:#1A1A1A;overflow-x:hidden}:root{--gold:${warna}} .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;background:linear-gradient(180deg,#fff 0%,#F5EFE6 100%)}.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,${warna}18,transparent 60%);animation:bokeh 8s infinite}@keyframes bokeh{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.08);opacity:1}}.arch-wrap{position:relative;z-index:2;width:88vw;max-width:380px}.arch{width:100%;height:580px;border:2px solid var(--gold);border-radius:200px 200px 24px 24px;position:relative;overflow:hidden;background:#fff;box-shadow:0 30px 60px rgba(0,0,0,.12)}.arch-inner{position:absolute;inset:14px;border:1px solid ${warna}33;border-radius:186px 186px 18px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 20px}.badge{background:var(--gold);color:#fff;padding:6px 14px;border-radius:20px;font-size:10px;letter-spacing:2px;text-transform:uppercase}.names{font-family:'Cormorant Garamond';font-size:42px;line-height:.9;color:var(--gold);margin:18px 0;letter-spacing:2px}.names span{display:block;font-weight:300;font-size:28px;color:#111;opacity:.4}.divider{width:60px;height:1px;background:var(--gold);margin:14px auto}.date{font-size:11px;letter-spacing:3px;text-transform:uppercase;opacity:.6}.couple{padding:80px 20px;text-align:center;max-width:600px;margin:0 auto}.couple h2{font-family:'Cormorant Garamond';font-size:28px;color:var(--gold);letter-spacing:2px}.parents{font-size:12px;opacity:.6;margin-top:6px;line-height:1.6}.venue{margin-top:60px;padding:24px;background:#fff;border:1px solid #E8E0D8;border-radius:16px}.venue h3{font-family:'Cormorant Garamond';font-size:20px;color:var(--gold)}.btn-maps{display:inline-block;margin-top:12px;padding:10px 18px;border-radius:24px;background:var(--gold);color:#fff;text-decoration:none;font-size:12px;letter-spacing:1px}.music{position:fixed;bottom:20px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,.2)}.countdown{display:flex;gap:12px;justify-content:center;margin-top:20px}.cd{width:64px;height:64px;border:1px solid ${warna}66;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center}.cd b{font-family:'Cormorant Garamond';font-size:22px;color:var(--gold)}.cd span{font-size:9px;letter-spacing:1px;opacity:.6}</style></head><body><div class="hero"><div class="arch-wrap" data-aos="fade-up" data-aos-duration="1200"><div class="arch"><div class="arch-inner"><span class="badge" data-aos="fade-up" data-aos-delay="100">${tema}</span><div class="names" data-aos="fade-up" data-aos-delay="300">${groom}<span>&</span>${bride}</div><div class="divider" data-aos="zoom-in" data-aos-delay="500"></div><div class="date" data-aos="fade-up" data-aos-delay="700">${tanggal} - ${maps}</div><div style="margin-top:16px;font-size:10px;opacity:.4" data-aos="fade-up" data-aos-delay="900">${prompt.slice(0,90)}</div></div></div></div></div><div class="couple"><div data-aos="fade-up"><h2>${groom} & ${bride}</h2><div class="parents">Putra dari<br><b>${ayah_groom} & ${ibu_groom}</b></div><div style="margin:24px 0" data-aos="fade-up" data-aos-delay="200"><div style="font-size:32px;color:${warna}">&</div></div><div class="parents" data-aos="fade-up" data-aos-delay="300">Putri dari<br><b>${ayah_bride} & ${ibu_bride}</b></div></div><div class="venue" data-aos="fade-up" data-aos-delay="400"><h3>Save The Date</h3><p style="font-size:12px;margin-top:8px;opacity:.7">${tanggal}</p><div class="countdown" id="cd-${id}"><div class="cd"><b id="d-${id}">00</b><span>HARI</span></div><div class="cd"><b id="h-${id}">00</b><span>JAM</span></div><div class="cd"><b id="m-${id}">00</b><span>MENIT</span></div><div class="cd"><b id="s-${id}">00</b><span>DETIK</span></div></div><div style="margin-top:20px"><h3>${maps}</h3><p style="font-size:11px;opacity:.6;margin-top:4px">The Wedding Venue</p><a class="btn-maps" href="https://maps.google.com/?q=${encodeURIComponent(maps)}" target="_blank">📍 Buka Maps</a></div></div>
-<div style="margin-top:60px;padding:24px;background:${warna}0D;border-radius:16px" data-aos="fade-up"><p style="font-family:'Cormorant Garamond';font-style:italic;font-size:18px;color:${warna}">"${prompt}"</p><p style="font-size:10px;letter-spacing:2px;opacity:.5;margin-top:8px">TEMA: ${tema.toUpperCase()} - WARNA: ${warna}</p></div><p style="font-size:10px;opacity:.3;margin-top:60px;letter-spacing:3px">SAYIDO EXCLUSIVE - ${tema}</p></div><div class="music" onclick="toggleMusic()">♫</div><audio id="audio" loop><source src="${lagu}" type="audio/mpeg"></audio><script src="https://unpkg.com/aos@2.3.1/dist/aos.js"><\/script><script>AOS.init({once:true});let audio=document.getElementById('audio');let playing=false;function toggleMusic(){if(!playing){audio.play();playing=true;}else{audio.pause();playing=false;}}let target=new Date('${tanggal}').getTime();setInterval(()=>{let now=new Date().getTime();let diff=target-now;if(diff>0){document.getElementById('d-${id}').innerText=Math.floor(diff/(1000*60*60*24));document.getElementById('h-${id}').innerText=Math.floor((diff%(1000*60*60*24))/(1000*60*60));document.getElementById('m-${id}').innerText=Math.floor((diff%(1000*60*60))/(1000*60));document.getElementById('s-${id}').innerText=Math.floor((diff%(1000*60))/1000);}},1000);<\/script></body></html>`;
-return {id,groom,bride,warna,tanggal,maps,prompt,tema,ayah_groom,ibu_groom,ayah_bride,ibu_bride,lagu,html,blobUrl:null};}
-function renderResults(){let results=document.getElementById('results');results.innerHTML='';generatedHTMLs.forEach((item,i)=>{if(!item)return;let blob=new Blob([item.html],{type:'text/html'});let url=URL.createObjectURL(blob);item.blobUrl=url;let div=document.createElement('div');div.className='inv-card';div.innerHTML=`<div style="display:flex;justify-content:space-between"><div><h3>${item.groom} & ${item.bride}</h3><span class="badge" style="background:${item.warna};color:#fff">${item.tema}</span><span class="badge">${item.tanggal}</span><br><span style="font-size:11px;color:#888">${item.maps} - ${item.warna}</span><br><a href="${url}" target="_blank" style="font-size:11px;color:#4A90E2">/u/${item.id}.html</a></div><div style="width:40px;height:40px;border-radius:50%;background:${item.warna};border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.2)"></div></div><div class="actions"><button class="primary" onclick="previewItem(${i})">👁️ Preview FULL</button><button onclick="downloadHTML(${i})">📥 HTML</button><button onclick="openMockup(${i})">📱 Mockup</button>${isAdmin?`<button onclick="openEdit(${i})" style="background:#FFF3CD">✏️ Edit</button><button onclick="downloadVideo(${i})" style="background:#111;color:#fff">🎬 Video</button>`:''}</div>`;results.appendChild(div);});}
-function previewItem(i){window.open(generatedHTMLs[i].blobUrl,'_blank');}
-function downloadHTML(i){let a=document.createElement('a');a.href=generatedHTMLs[i].blobUrl;a.download=generatedHTMLs[i].id+'.html';a.click();}
-function openEdit(i){currentEditIndex=i;let item=generatedHTMLs[i];document.getElementById('editForm').innerHTML=`<label>Groom</label><input id="e_groom" value="${item.groom}"><label>Bride</label><input id="e_bride" value="${item.bride}"><label>Tanggal</label><input id="e_tanggal" type="date" value="${item.tanggal}"><label>Venue</label><input id="e_maps" value="${item.maps}"><label>Warna</label><input id="e_warna" type="color" value="${item.warna}"><label>Ayah Groom</label><input id="e_ag" value="${item.ayah_groom}"><label>Ibu Groom</label><input id="e_ig" value="${item.ibu_groom}"><label>Ayah Bride</label><input id="e_ab" value="${item.ayah_bride}"><label>Ibu Bride</label><input id="e_ib" value="${item.ibu_bride}"><label>Prompt</label><textarea id="e_prompt">${item.prompt}</textarea><label>Tema</label><input id="e_tema" value="${item.tema}">`;document.getElementById('editModal').classList.add('active');}
-function saveEdit(){let i=currentEditIndex;let it=generatedHTMLs[i];it.groom=document.getElementById('e_groom').value;it.bride=document.getElementById('e_bride').value;it.tanggal=document.getElementById('e_tanggal').value;it.maps=document.getElementById('e_maps').value;it.warna=document.getElementById('e_warna').value;it.ayah_groom=document.getElementById('e_ag').value;it.ibu_groom=document.getElementById('e_ig').value;it.ayah_bride=document.getElementById('e_ab').value;it.ibu_bride=document.getElementById('e_ib').value;it.prompt=document.getElementById('e_prompt').value;it.tema=document.getElementById('e_tema').value;it.html=generateFullMoran(it,i).html;let blob=new Blob([it.html],{type:'text/html'});it.blobUrl=URL.createObjectURL(blob);closeModal();renderResults();}
-function closeModal(){document.getElementById('editModal').classList.remove('active');}
-function openMockup(i){let item=generatedHTMLs[i];let c=document.getElementById('mockupContainer');c.innerHTML=`<div style="background:#111;padding:20px;border-radius:24px"><div style="color:#fff;font-size:12px;margin-bottom:10px">${item.tema} - ${item.groom} & ${item.bride}</div><div class="mockup-preview"><iframe src="${item.blobUrl}"></iframe></div><div style="color:#fff;font-size:11px;margin-top:10px;opacity:.6">SAYIDO - ${item.warna}</div></div>`;document.getElementById('mockupModal').classList.add('active');window._mockupIndex=i;}
-function closeMockup(){document.getElementById('mockupModal').classList.remove('active');}
-async function downloadMockupPNG(){let p=document.querySelector('#mockupContainer > div');let canvas=await html2canvas(p,{scale:2,useCORS:true});let a=document.createElement('a');a.download=`MOCKUP-${generatedHTMLs[window._mockupIndex].id}.png`;a.href=canvas.toDataURL('image/png');a.click();}
-function downloadVideo(i){window.open(generatedHTMLs[i].blobUrl,'_blank');alert('Silakan screen-record untuk video MP4');}
-</script></body></html>
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>SAYIDO BULK v3 PREMIUM FULL</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Manrope:wght@300;400;500;600&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Manrope',sans-serif;background:#FAF8F5;padding:14px;color:#222}.h{background:#111;color:#fff;padding:22px;border-radius:18px;text-align:center}.card{background:#fff;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 4px 16px rgba(0,0,0,.06);border:1px solid #eee}.btn{background:#111;color:#fff;border:none;padding:12px 16px;border-radius:12px;font-weight:600;cursor:pointer}.btn-gold{background:#D4AF37;color:#111}.grid{display:grid;gap:10px}.inv{border:1px solid #ddd;border-radius:14px;padding:12px;background:#FFFEFB}.badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;background:#F5EFE6;margin:2px}.acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.acts button{padding:7px 9px;border-radius:9px;border:1px solid #ddd;background:#fff;font-size:11px;cursor:pointer}.acts button.pr{background:#111;color:#fff}.mock{width:270px;height:560px;border:12px solid #111;border-radius:32px;overflow:hidden;margin:10px auto;background:#000}.mock iframe{width:100%;height:100%;border:none}input,textarea{width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;margin-top:5px}.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:99;padding:16px}.modal.on{display:flex}.box{background:#fff;border-radius:18px;padding:18px;max-width:520px;width:100%;max-height:92vh;overflow:auto}
+.theme-tag{font-size:9px;padding:3px 7px;border-radius:12px;background:#111;color:#fff}
+</style></head><body>
+<div class="h"><h2>SAYIDO v3 PREMIUM FULL</h2><p style="font-size:12px;opacity:.8">100 TEMA BEDA TOTAL • Undangan Lengkap 10 Section • Gallery • RSVP • Gift</p><p style="font-size:10px;opacity:.5;margin-top:4px">FIX: bukan cuma ganti warna, tapi beda layout, background, dekor, font!</p></div>
+<div class="card"><h4>🔐 Admin sayido123</h4><input id="pass" type="password" placeholder="sayido123"><button class="btn" onclick="cek()">Aktifkan</button><span id="st"></span></div>
+<div class="card"><button class="btn btn-gold" onclick="dl100()">📥 Download Excel 100 Tema BEDA TOTAL</button></div>
+<div class="card"><input type="file" id="file" accept=".xlsx"><div id="info"></div><button class="btn" style="width:100%;padding:14px;margin-top:10px" onclick="gen()">🚀 GENERATE 100 UNDANGAN PREMIUM</button><div style="background:#eee;height:10px;border-radius:10px;margin-top:8px"><div id="prog" style="height:100%;width:0%;background:#111"></div></div><div id="progText">0/100</div></div>
+<div class="card"><h4>Hasil Premium</h4><div id="res" class="grid"></div></div>
+<div id="mEdit" class="modal"><div class="box"><h3>Edit Lengkap</h3><div id="form"></div><button class="btn" onclick="save()">Simpan</button><button class="btn" onclick="closeE()">Tutup</button></div></div>
+<div id="mMock" class="modal"><div class="box" style="text-align:center"><h3>Mockup HP</h3><div id="mockC"></div><button class="btn" onclick="dlPNG()">Download PNG Katalog</button><button class="btn" onclick="closeM()">Tutup</button></div></div>
+<script>
+const THEMES=[
+{name:"Moran Luxury",warna:"#D4AF37",bg:"#FFFEF8",arch:"arch-luxury",font:"Cormorant Garamond",deco:"✦",style:"gold-black"},
+{name:"Glamour Night",warna:"#111111",bg:"#0A0A0A",arch:"arch-sharp",font:"Playfair Display",deco:"◆",style:"black-gold"},
+{name:"Royal Navy",warna:"#0F2A4A",bg:"#F0F4FF",arch:"arch-royal",font:"Cormorant Garamond",deco:"⚓",style:"navy-gold"},
+{name:"Rustic Boho",warna:"#8B7355",bg:"#FDF6EE",arch:"arch-boho",font:"Great Vibes",deco:"🌿",style:"sage-boho"},
+{name:"Japandi Minimal",warna:"#E8D5C4",bg:"#FFFCF8",arch:"arch-minimal",font:"Manrope",deco:"○",style:"minimal"},
+{name:"Floral Romantic",warna:"#FFB6C1",bg:"#FFF5F7",arch:"arch-floral",font:"Great Vibes",deco:"❀",style:"pink-floral"},
+{name:"Moody Burgundy",warna:"#800020",bg:"#FFF5F5",arch:"arch-moody",font:"Playfair Display",deco:"♥",style:"burgundy"},
+{name:"Beach Tropical",warna:"#D2B48C",bg:"#FFFBF0",arch:"arch-beach",font:"Cormorant Garamond",deco:"🐚",style:"beach"},
+{name:"Jawa Traditional",warna:"#8B4513",bg:"#FFF8F0",arch:"arch-jawa",font:"Cormorant Garamond",deco:"ꦧ",style:"batik"},
+{name:"Sunda Pastel",warna:"#FFCBA4",bg:"#FFF5EE",arch:"arch-pastel",font:"Great Vibes",deco:"🌸",style:"pastel"},
+{name:"Chinese Oriental",warna:"#C41E3A",bg:"#FFF0F0",arch:"arch-oriental",font:"Playfair Display",deco:"囍",style:"red-gold"},
+{name:"Korean Minimal",warna:"#FFB5C2",bg:"#FFFAFB",arch:"arch-korean",font:"Manrope",deco:"♡",style:"korean"},
+{name:"Industrial Loft",warna:"#5A5A5A",bg:"#F5F5F5",arch:"arch-industrial",font:"Manrope",deco:"⬡",style:"industrial"},
+{name:"Vintage Cream",warna:"#C9A86A",bg:"#FFFEF5",arch:"arch-vintage",font:"Cormorant Garamond",deco:"❦",style:"vintage"},
+{name:"Sunset Boho",warna:"#FF7F50",bg:"#FFF5F0",arch:"arch-sunset",font:"Great Vibes",deco:"☀",style:"sunset"},
+{name:"Emerald Luxury",warna:"#2D5A27",bg:"#F5FFF5",arch:"arch-emerald",font:"Playfair Display",deco:"♦",style:"emerald"},
+{name:"Lilac Dream",warna:"#9B7EB8",bg:"#F8F5FF",arch:"arch-lilac",font:"Great Vibes",deco:"✿",style:"lilac"},
+{name:"Champagne Glam",warna:"#C9A86A",bg:"#FFFEF8",arch:"arch-champagne",font:"Cormorant Garamond",deco:"✧",style:"champagne"},
+{name:"Forest Woodland",warna:"#3A5F3A",bg:"#F0F8F0",arch:"arch-forest",font:"Cormorant Garamond",deco:"🌲",style:"forest"},
+{name:"Sky Airy",warna:"#87CEEB",bg:"#F0FAFF",arch:"arch-sky",font:"Manrope",deco:"☁",style:"sky"},
+  {name:"Maroon Royal",warna:"#800000",bg:"#FFF5F5",arch:"arch-maroon",font:"Playfair Display",deco:"♛",style:"royal"},
+{name:"Peach Fuzz",warna:"#FFBE98",bg:"#FFF8F5",arch:"arch-peach",font:"Great Vibes",deco:"🍑",style:"peach"},
+{name:"Charcoal Modern",warna:"#36454F",bg:"#F8F9FA",arch:"arch-charcoal",font:"Manrope",deco:"◼",style:"charcoal"},
+{name:"Ivory Pearl",warna:"#D4C5B0",bg:"#FFFFF8",arch:"arch-ivory",font:"Cormorant Garamond",deco:"◎",style:"ivory"},
+{name:"Terracotta Med",warna:"#E2725B",bg:"#FFF5F2",arch:"arch-terra",font:"Playfair Display",deco:"◍",style:"terracotta"},
+{name:"Midnight Star",warna:"#191970",bg:"#F0F0FF",arch:"arch-midnight",font:"Cormorant Garamond",deco:"★",style:"midnight"},
+{name:"Blush Romantic",warna:"#FFC0CB",bg:"#FFF5F8",arch:"arch-blush",font:"Great Vibes",deco:"💕",style:"blush"},
+{name:"Dusty Sage",warna:"#7A9A7E",bg:"#F5FAF6",arch:"arch-sage",font:"Manrope",deco:"🍃",style:"sage"},
+{name:"Chocolate Autumn",warna:"#5C4033",bg:"#FDF6F0",arch:"arch-choco",font:"Playfair Display",deco:"🍂",style:"autumn"},
+{name:"Olive Natural",warna:"#606C38",bg:"#F8FAF0",arch:"arch-olive",font:"Cormorant Garamond",deco:"🫒",style:"olive"}
+];
+let isAdmin=false, all=[], cur=null;
+function cek(){if(document.getElementById('pass').value==='sayido123'){isAdmin=true;document.getElementById('st').innerText=' ✅ Admin';render();}else alert('salah');}
+function dl100(){
+let rows=[["prompt","groom","bride","tanggal","maps","ayah_groom","ibu_groom","ayah_bride","ibu_bride","warna","lagu","tema","venue_akad","venue_resepsi","jam_akad","jam_resepsi","rekening","story"]];
+const g=["Kevin","Ryo","Dimas","Arif","Bima","Reza","Fajar","Galih","Hendry","Wijaya","Arya","Bagas","Cakra","Dion","Eka","Farid","Gilang","Hafiz","Ilham","Joko"];
+const b=["Monica","Amanda","Putri","Sari","Dewi","Lestari","Ratna","Yuki","Maia","Nadia","Citra","Bella","Dinda","Elsa","Fani","Gita","Hani","Indah","Jihan","Kirana"];
+for(let i=0;i<100;i++){let t=THEMES[i%THEMES.length];let groom=g[i%g.length]+(i>=20?' '+String(i):'');let bride=b[i%b.length]+(i>=20?' '+String(i):'');let akad=`Masjid Agung ${t.maps||'Surabaya'}`;let res=`${t.maps||'Grand Ballroom'} Surabaya`;rows.push([`${t.name} luxury wedding arch ${t.style} couple ${groom} & ${bride} premium invitation Indonesian`,groom,bride,`2025-${String((i%12)+1).padStart(2,'0')}-${String((i%28)+1).padStart(2,'0')}`,t.maps||'Sheraton Surabaya',`Bpk. Hendry ${groom}`,`Ibu Susi`, `Bpk. Wijaya ${bride}`,`Ibu Dewi`,t.warna,"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",t.name,akad,res,"08:00 WIB","19:00 WIB","BCA 1234567890 a.n. "+groom,"Berawal dari pertemuan di kampus 2019, berlanjut lamaran 2024, dan kini menuju pelaminan."]);}
+let ws=XLSX.utils.aoa_to_sheet(rows);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"100_BEDA_TOTAL");XLSX.writeFile(wb,"SAYIDO_100_BEDA_TOTAL_PREMIUM.xlsx");
+}
+let uploaded=[];
+document.getElementById('file').addEventListener('change',e=>{let f=e.target.files[0];let r=new FileReader();r.onload=ev=>{let d=new Uint8Array(ev.target.result);let wb=XLSX.read(d,{type:'array'});let ws=wb.Sheets[wb.SheetNames[0]];uploaded=XLSX.utils.sheet_to_json(ws);document.getElementById('info').innerHTML=`✅ ${uploaded.length} data loaded - 100 tema beda total`;};r.readAsArrayBuffer(f);});
+function gen(){if(uploaded.length===0){alert('Upload dulu');return;}all=[];uploaded.forEach((row,i)=>{setTimeout(()=>{all[i]=build(row,i);document.getElementById('prog').style.width=((i+1)/uploaded.length*100)+'%';document.getElementById('progText').innerText=`${i+1}/${uploaded.length}`;if(i===uploaded.length-1)render();},i*18);});}
+function getThemeObj(nama){return THEMES.find(t=>t.name===nama) || THEMES[0];}
+function build(row,i){
+let tObj=getThemeObj(row.tema);
+let warna=row.warna||tObj.warna;
+let groom=row.groom||'Kevin';let bride=row.bride||'Monica';let tanggal=row.tanggal||'2025-12-29';let maps=row.maps||'Sheraton Surabaya';
+let prompt=row.prompt||'';let tema=row.tema||tObj.name;
+let ayah_g=row.ayah_groom||'Bpk. Hendry';let ibu_g=row.ibu_groom||'Ibu Susi';let ayah_b=row.ayah_bride||'Bpk. Wijaya';let ibu_b=row.ibu_bride||'Ibu Dewi';
+let lagu=row.lagu||'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+let vAkad=row.venue_akad||'Masjid Agung';let vRes=row.venue_resepsi||maps;let jamAkad=row.jam_akad||'08:00';let jamRes=row.jam_resepsi||'19:00';let rek=row.rekening||'BCA 1234567890';let story=row.story||'Perjalanan cinta kami.';
+let id=`${groom}-${bride}-${Date.now()+i}`.toLowerCase().replace(/[^a-z0-9-]/g,'-');
+let archShape = tema.includes('Boho') ? 'border-radius:180px 180px 16px 16px; border-style:dashed;' : tema.includes('Minimal') ? 'border-radius:24px;' : tema.includes('Beach') ? 'border-radius:200px 200px 40px 40px;' : tema.includes('Jawa') ? 'border-radius:120px 120px 8px 8px; border-width:3px;' : 'border-radius:200px 200px 20px 20px;';
+let html=`<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${groom} & ${bride} - ${tema}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Manrope:wght@300;400;500&family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Manrope',sans-serif;background:${tObj.bg};color:#222;overflow-x:hidden;line-height:1.6}
+h1,h2,h3{font-family:'${tObj.font}',serif}
+:root{--gold:${warna};--bg:${tObj.bg}}
+.cover{position:fixed;inset:0;z-index:100;background:linear-gradient(180deg,#fff 0%,${tObj.bg} 100%);display:flex;align-items:center;justify-content:center;transition:transform .8s cubic-bezier(.8,0,.2,1)}
+.cover.hide{transform:translateY(-100%)}
+.cover-card{width:88vw;max-width:380px;text-align:center;padding:20px}
+.cover-arch{width:100%;height:520px;border:2px solid var(--gold);${archShape} background:#fff;position:relative;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.15);margin:0 auto}
+.cover-arch-inner{position:absolute;inset:12px;border:1px solid ${warna}40;${archShape} display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.btn-open{background:var(--gold);color:#fff;border:none;padding:14px 28px;border-radius:30px;font-weight:600;letter-spacing:1px;cursor:pointer;margin-top:18px;box-shadow:0 8px 20px ${warna}55}
+.hero{min-height:90vh;display:flex;align-items:center;justify-content:center;padding:20px;position:relative}
+.hero-bg{position:absolute;inset:0;opacity:.08;background:radial-gradient(circle at 30% 20%,${warna},transparent 60%)}
+.arch-wrap{position:relative;z-index:2;width:92vw;max-width:400px}
+.arch{width:100%;height:600px;border:2px solid var(--gold);${archShape} background:#fff;position:relative;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.12)}
+.arch-inner{position:absolute;inset:14px;border:1px solid ${warna}33;${archShape} display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px 20px}
+.badge{background:var(--gold);color:#fff;padding:6px 14px;border-radius:20px;font-size:10px;letter-spacing:2px;text-transform:uppercase}
+.names{font-family:'${tObj.font}',serif;font-size:46px;line-height:.9;color:var(--gold);margin:16px 0;letter-spacing:1px}
+.names span{font-size:26px;opacity:.4;display:block;color:#111}
+.divider{width:70px;height:1px;background:var(--gold);margin:12px auto}
+.date{font-size:11px;letter-spacing:3px;text-transform:uppercase;opacity:.6}
+.section{padding:70px 20px;max-width:680px;margin:0 auto;text-align:center}
+.section h2{font-size:32px;color:var(--gold);margin-bottom:12px;letter-spacing:1px}
+.sub{font-size:12px;opacity:.6;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.couple-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+.couple-card{background:#fff;border:1px solid ${warna}22;border-radius:16px;padding:20px}
+.couple-card h3{font-size:22px;color:var(--gold);margin-top:10px}
+.couple-card .ortu{font-size:11px;opacity:.6;margin-top:6px;line-height:1.5}
+.event-cards{display:grid;gap:16px;margin-top:24px}
+.event{background:#fff;border:1px solid ${warna}22;border-radius:16px;padding:20px;text-align:left;position:relative;overflow:hidden}
+.event::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gold)}
+.event h4{font-family:'${tObj.font}',serif;color:var(--gold);font-size:18px}
+.event p{font-size:12px;opacity:.7;margin-top:4px}
+.btn-maps{display:inline-block;margin-top:10px;padding:8px 16px;background:var(--gold);color:#fff;border-radius:20px;text-decoration:none;font-size:11px}
+.count{display:flex;gap:10px;justify-content:center;margin-top:20px}
+.cd{width:68px;height:68px;border:1px solid ${warna}55;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff}
+.cd b{font-size:22px;color:var(--gold);font-family:'${tObj.font}',serif}
+.cd span{font-size:9px;opacity:.6;letter-spacing:1px}
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.gallery div{height:160px;background:linear-gradient(135deg,${warna}22,#fff);border-radius:12px;border:1px solid ${warna}18;display:flex;align-items:center;justify-content:center;font-size:11px;opacity:.6}
+.timeline{margin-top:20px;text-align:left;position:relative;padding-left:24px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:${warna}33}
+.tl{position:relative;margin-bottom:20px}
+.tl::before{content:'';position:absolute;left:-20px;top:6px;width:10px;height:10px;background:var(--gold);border-radius:50%}
+.tl h5{font-size:14px;color:var(--gold)} .tl p{font-size:12px;opacity:.7}
+.rsvp{background:#fff;border:1px solid ${warna}22;border-radius:16px;padding:20px;margin-top:20px}
+.rsvp input,.rsvp textarea,.rsvp select{width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;margin-top:8px}
+.gift{background:linear-gradient(135deg,${warna}11,#fff);border:1px dashed ${warna}66;border-radius:16px;padding:20px;margin-top:20px}
+.music{position:fixed;bottom:18px;right:18px;width:46px;height:46px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:50;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.deco{font-size:28px;color:var(--gold);margin:10px 0;opacity:.7}
+@media(max-width:480px){.couple-grid{grid-template-columns:1fr}.names{font-size:38px}}
+</style></head><body>
+<div class="cover" id="cover">
+<div class="cover-card">
+<div class="cover-arch"><div class="cover-arch-inner">
+<span class="badge">${tema}</span>
+<div class="deco">${tObj.deco}</div>
+<div class="names">${groom}<span>&</span>${bride}</div>
+<div class="divider"></div>
+<div class="date">${tanggal}</div>
+<p style="font-size:10px;opacity:.5;margin-top:10px">${vAkad} • ${vRes}</p>
+</div></div>
+<button class="btn-open" onclick="openInv()">💌 Buka Undangan</button>
+<p style="font-size:10px;opacity:.4;margin-top:12px">Kepada Yth. Tamu Undangan</p>
+</div>
+</div>
+<div class="hero">
+<div class="hero-bg"></div>
+<div class="arch-wrap" data-aos="zoom-in" data-aos-duration="1000">
+<div class="arch"><div class="arch-inner">
+<span class="badge" data-aos="fade-up" data-aos-delay="100">${tema}</span>
+<div class="deco" data-aos="fade-up" data-aos-delay="200">${tObj.deco}</div>
+<div class="names" data-aos="fade-up" data-aos-delay="300">${groom}<span>&</span>${bride}</div>
+<div class="divider" data-aos="zoom-in" data-aos-delay="500"></div>
+<div class="date" data-aos="fade-up" data-aos-delay="600">${tanggal} • ${maps}</div>
+<p style="font-size:10px;opacity:.5;margin-top:12px" data-aos="fade-up" data-aos-delay="800">${prompt.slice(0,100)}</p>
+</div></div>
+</div>
+</div>
+<div class="section" data-aos="fade-up">
+<p class="sub">The Wedding Of</p>
+<h2>${groom} & ${bride}</h2>
+<div class="deco">${tObj.deco}</div>
+<p style="font-size:13px;opacity:.7;margin-top:10px;font-style:italic">"Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan hidup dari jenismu sendiri"</p>
+<p style="font-size:11px;opacity:.5;margin-top:6px">QS. Ar-Rum:21</p>
+<div class="couple-grid">
+<div class="couple-card" data-aos="fade-up" data-aos-delay="100">
+<div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,${warna}33,#fff);margin:0 auto;border:2px solid ${warna}55;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--gold)">♂</div>
+<h3>${groom}</h3>
+<p style="font-size:11px;opacity:.6">${groom} Wijaya</p>
+<div class="ortu">Putra dari<br><b>${ayah_g} & ${ibu_g}</b></div>
+</div>
+<div class="couple-card" data-aos="fade-up" data-aos-delay="200">
+<div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,${warna}33,#fff);margin:0 auto;border:2px solid ${warna}55;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--gold)">♀</div>
+<h3>${bride}</h3>
+<p style="font-size:11px;opacity:.6">${bride} Lestari</p>
+<div class="ortu">Putri dari<br><b>${ayah_b} & ${ibu_b}</b></div>
+</div>
+</div>
+</div>
+<div class="section" data-aos="fade-up" style="background:#fff;border-radius:20px;border:1px solid ${warna}18">
+<p class="sub">Save The Date</p>
+<h2>Menuju Hari Bahagia</h2>
+<div class="count" id="cd-${id}">
+<div class="cd"><b id="d-${id}">00</b><span>HARI</span></div>
+<div class="cd"><b id="h-${id}">00</b><span>JAM</span></div>
+<div class="cd"><b id="m-${id}">00</b><span>MENIT</span></div>
+<div class="cd"><b id="s-${id}">00</b><span>DETIK</span></div>
+</div>
+<div class="event-cards">
+<div class="event" data-aos="fade-up" data-aos-delay="100">
+<h4>🕌 Akad Nikah</h4>
+<p><b>${vAkad}</b><br>${tanggal} • ${jamAkad}<br>${maps}</p>
+<a class="btn-maps" href="https://maps.google.com/?q=${encodeURIComponent(vAkad)}" target="_blank">📍 Maps Akad</a>
+</div>
+<div class="event" data-aos="fade-up" data-aos-delay="200">
+<h4>🎉 Resepsi</h4>
+<p><b>${vRes}</b><br>${tanggal} • ${jamRes}<br>${maps}</p>
+<a class="btn-maps" href="https://maps.google.com/?q=${encodeURIComponent(vRes)}" target="_blank">📍 Maps Resepsi</a>
+</div>
+</div>
+</div>
+<div class="section" data-aos="fade-up">
+<p class="sub">Our Moments</p>
+<h2>Gallery Cinta</h2>
+<div class="deco">${tObj.deco} ${tObj.deco} ${tObj.deco}</div>
+<div class="gallery">
+<div>Foto Prewed 1<br>${tema}</div>
+<div>Foto Prewed 2<br>${groom} & ${bride}</div>
+<div>Foto Akad</div>
+<div>Foto Resepsi</div>
+</div>
+</div>
+<div class="section" data-aos="fade-up" style="background:#fff;border-radius:20px;border:1px solid ${warna}18">
+<p class="sub">Love Journey</p>
+<h2>Kisah Kami</h2>
+<div class="timeline">
+<div class="tl"><h5>2019 - Pertama Bertemu</h5><p>${story}</p></div>
+<div class="tl"><h5>2024 - Lamaran</h5><p>Memutuskan untuk melangkah ke jenjang yang lebih serius.</p></div>
+<div class="tl"><h5>${tanggal} - Menikah</h5><p>Dengan restu keluarga, kami mengikat janji suci pernikahan.</p></div>
+</div>
+</div>
+<div class="section" data-aos="fade-up">
+<p class="sub">Konfirmasi</p>
+<h2>RSVP</h2>
+<p style="font-size:12px;opacity:.6">Mohon konfirmasi kehadiran</p>
+<div class="rsvp">
+<input placeholder="Nama Anda">
+<select><option>Hadir</option><option>Tidak Hadir</option><option>Ragu</option></select>
+<textarea placeholder="Ucapan & Doa" rows="3"></textarea>
+<button style="width:100%;margin-top:10px;padding:12px;background:var(--gold);color:#fff;border:none;border-radius:12px;font-weight:600" onclick="window.open('https://wa.me/6281234567890?text=Halo ${groom} & ${bride}, saya konfirmasi hadir','_blank')">Kirim via WhatsApp</button>
+</div>
+<div class="gift">
+<h4 style="color:var(--gold);font-family:'${tObj.font}',serif">🎁 Amplop Digital</h4>
+<p style="font-size:11px;opacity:.6;margin-top:6px">Doa restu Anda adalah hadiah terindah, namun jika berkenan memberikan tanda kasih:</p>
+<p style="margin-top:10px;background:#fff;padding:10px;border-radius:10px;font-size:13px;border:1px solid ${warna}33"><b>${rek}</b></p>
+<button style="margin-top:10px;padding:8px 16px;background:#fff;border:1px solid ${warna};border-radius:20px;font-size:11px" onclick="navigator.clipboard.writeText('${rek}')">📋 Salin Rekening</button>
+</div>
+</div>
+<div class="section" data-aos="fade-up" style="padding-bottom:100px">
+<div class="deco">${tObj.deco}</div>
+<h2>Terima Kasih</h2>
+<p style="font-size:13px;opacity:.7;margin-top:10px">Merupakan kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara berkenan hadir memberikan doa restu.</p>
+<div style="margin-top:24px">
+<div class="names" style="font-size:32px">${groom} & ${bride}</div>
+<p style="font-size:10px;letter-spacing:3px;opacity:.4;margin-top:20px">SAYIDO EXCLUSIVE • ${tema.toUpperCase()} • ${warna}</p>
+</div>
+</div>
+<div class="music" onclick="toggleM()">♫</div>
+<audio id="aud" loop><source src="${lagu}" type="audio/mpeg"></audio>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"><\/script>
+<script>
+AOS.init({once:true});let cov=document.getElementById('cover');function openInv(){cov.classList.add('hide');document.getElementById('aud').play().catch(()=>{});setTimeout(()=>{cov.style.display='none'},800);}
+let audio=document.getElementById('aud');let play=false;function toggleM(){if(!play){audio.play();play=true;}else{audio.pause();play=false;}}
+let target=new Date('${tanggal}').getTime();setInterval(()=>{let
