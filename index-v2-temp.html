@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAYIDO BULK v2.0 - 100 Tema Beda + Mockup + Video</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Manrope',sans-serif;background:#FAF8F5;color:#1A1A1A;padding:16px}
+.header{background:#111;color:#fff;padding:24px;border-radius:20px;text-align:center;margin-bottom:20px}
+.header h1{font-family:'Cormorant Garamond';font-size:32px;letter-spacing:2px}
+.card{background:#fff;border-radius:16px;padding:18px;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:16px;border:1px solid #eee}
+.btn{background:#111;color:#fff;border:none;padding:12px 18px;border-radius:12px;font-weight:600;cursor:pointer}
+.btn-gold{background:#D4AF37;color:#111}
+.grid{display:grid;gap:12px}
+.inv-card{border:1px solid #E8D0D8;border-radius:16px;padding:14px;background:#FFFEFB}
+.badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;background:#F5EFE6;margin:2px}
+.actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.actions button{padding:8px 10px;border-radius:10px;border:1px solid #ddd;background:#fff;font-size:12px;cursor:pointer}
+.actions button.primary{background:#111;color:#fff}
+.mockup-preview{width:260px;height:540px;border:12px solid #111;border-radius:36px;overflow:hidden;margin:10px auto;background:#000}
+.mockup-preview iframe{width:100%;height:100%;border:none}
+input,textarea,select{width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;margin-top:6px;font-size:14px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:99;padding:20px}
+.modal.active{display:flex}
+.modal-box{background:#fff;border-radius:20px;padding:20px;max-width:480px;width:100%;max-height:90vh;overflow:auto}
+.admin-bar{background:#FFF3CD;border:1px dashed #D4AF37;padding:12px;border-radius:12px}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>SAYIDO BULK v2.0</h1>
+<p>100 Tema Beda • Mockup HP • Video • Editor Template</p>
+</div>
+<div class="card">
+<h3>🔐 Mode Admin (Video & Edit)</h3>
+<div class="admin-bar">
+<input type="password" id="adminPass" placeholder="Password: sayido123">
+<button class="btn" onclick="checkAdmin()">Aktifkan Admin</button>
+<span id="adminStatus" style="font-size:12px;margin-left:10px"></span>
+</div>
+</div>
+<div class="card">
+<h3>1. Download Template 100 Tema Beda</h3>
+<button class="btn btn-gold" onclick="download100Beda()">📥 Download 100 Tema Beda (Excel)</button>
+</div>
+<div class="card">
+<h3>2. Upload Excel & Generate</h3>
+<input type="file" id="excelFile" accept=".xlsx,.xls">
+<div id="uploadInfo" style="margin-top:10px;font-size:13px"></div>
+<button class="btn" style="margin-top:12px;width:100%;padding:16px" onclick="generateBulk()">🎬 GENERATE 100 UNDANGAN</button>
+<div style="background:#eee;border-radius:10px;height:10px;margin-top:12px;overflow:hidden"><div id="prog" style="height:100%;width:0%;background:#111"></div></div>
+<div id="progText" style="font-size:12px;margin-top:4px">0/100 - 0%</div>
+</div>
+<div class="card">
+<h3>3. Hasil - Edit + Mockup + Video</h3>
+<div id="results" class="grid"></div>
+</div>
+<div id="editModal" class="modal"><div class="modal-box"><h3>✏️ Edit Template</h3><div id="editForm"></div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn" onclick="saveEdit()">Simpan</button><button class="btn" onclick="closeModal()">Tutup</button></div></div></div>
+<div id="mockupModal" class="modal"><div class="modal-box" style="text-align:center"><h3>📱 Mockup HP - Cover Katalog</h3><div id="mockupContainer"></div><div style="display:flex;gap:8px;justify-content:center;margin-top:12px"><button class="btn" onclick="downloadMockupPNG()">📥 Download PNG Cover</button><button class="btn" onclick="closeMockup()">Tutup</button></div></div></div>
+<script>
+const THEMES_100=[
+["black tuxedo black dress luxury elegant modern arch gold D4AF37 outdoor day","#D4AF37","Moran Luxury","Sheraton Surabaya"],
+["elegant black gold glamour arch bokeh matte gold ballroom sunset","#111111","Glamour Night","Grand Ballroom"],
+["navy blue gold royal arch luxury classic Sheraton garden night","#0F2A4A","Royal Navy","The Ritz Carlton"],
+["rustic boho sage green terracotta arch dried flowers outdoor beach","#8B7355","Rustic Boho","Garden Villa"],
+["minimalist white beige arch clean modern Japandi rooftop day","#E8D5C4","Japandi Minimal","Rooftop Garden"],
+["floral pink watercolor romantic gold foil soft arch outdoor sunset","#FFB6C1","Floral Romantic","Garden Villa"],
+["dark moody burgundy black luxury arch dramatic lighting ballroom night","#800020","Moody Burgundy","Grand Ballroom"],
+["beach tropical palm sand beige arch ocean sunset garden","#D2B48C","Beach Tropical","Beach Resort"],
+["Javanese traditional kebaya batik gold arch pendopo beach day","#8B4513","Jawa Traditional","Pendopo Agung"],
+["Sundanese pastel peach gold arch garden rooftop sunset","#FFCBA4","Sunda Pastel","Garden Villa"],
+["chinese red gold oriental arch luxury","#C41E3A","Chinese Oriental","Grand Ballroom"],
+["Korean white minimal arch cherry blossom","#FFF0F5","Korean Minimal","Garden Villa"],
+["industrial grey concrete arch urban loft","#808080","Industrial Loft","Urban Loft"],
+["vintage cream lace arch classic car","#F5F5DC","Vintage Cream","Classic Garden"],
+["sunset orange dusty pink arch boho desert","#FF7F50","Sunset Boho","Desert Villa"],
+["emerald green gold arch luxury ballroom","#2D5A27","Emerald Luxury","Grand Ballroom"],
+["lilac purple lavender arch dreamy garden","#C8A2C8","Lilac Dream","Garden Villa"],
+["champagne gold glitter arch glamour night","#C9A86A","Champagne Glam","Ballroom"],
+["forest green moss arch woodland outdoor","#228B22","Forest Woodland","Forest Venue"],
+["sky blue cloud arch airy daytime","#87CEEB","Sky Airy","Rooftop"],
+["maroon velvet gold arch royal palace","#800000","Maroon Royal","Palace Ballroom"],
+["peach fuzz coral arch modern 2024 color","#FFBE98","Peach Fuzz 2024","Modern Venue"],
+["charcoal grey silver arch modern man","#36454F","Charcoal Modern","Urban Loft"],
+["ivory pearl arch timeless elegant","#FFFFF0","Ivory Pearl","Classic Ballroom"],
+["terracotta clay arch Mediterranean","#E2725B","Terracotta Med","Villa Med"],
+["midnight blue star arch evening","#191970","Midnight Star","Rooftop Night"],
+["blush pink gold arch feminine romantic","#FFC0CB","Blush Romantic","Garden"],
+["dusty blue sage arch vintage rustic","#5B7C99","Dusty Sage","Rustic Garden"],
+["chocolate brown gold arch cozy autumn","#7B3F00","Chocolate Autumn","Autumn Villa"],
+["olive green gold arch natural outdoor","#808000","Olive Natural","Outdoor Garden"],
+["navy gold anchor nautical arch","#000080","Nautical Navy","Beach Resort"],
+["sage green eucalyptus garden arch","#9CAF88","Sage Eucalyptus","Garden"],
+["dusty rose mauve arch romantic","#D4A5A5","Dusty Rose","Garden Villa"],
+["burnt orange terracotta boho arch","#CC5500","Burnt Orange","Boho Villa"],
+["deep teal gold peacock arch luxury","#014D4E","Teal Peacock","Luxury Ballroom"],
+["soft grey white minimalist arch","#D3D3D3","Soft Grey Minimal","Minimal Hall"],
+["golden hour amber arch sunset","#FFBF00","Golden Hour","Beach Sunset"],
+["wine red burgundy velvet arch","#722F37","Wine Velvet","Ballroom"],
+["powder blue white coastal arch","#B0E0E6","Powder Coastal","Beach"],
+["moss green beige earthy arch","#8A9A5B","Moss Earthy","Garden"],
+["black white monochrome arch modern","#000000","Monochrome Modern","Modern Hall"],
+["rose gold blush luxury arch","#B76E79","Rose Gold","Luxury Garden"],
+["denim blue white casual arch","#6F8FAF","Denim Casual","Garden Casual"],
+["mustard yellow marigold arch festive","#FFDB58","Mustard Festive","Garden Fest"],
+["plum purple gold luxury arch","#8E4585","Plum Luxury","Ballroom"],
+["seafoam mint green coastal arch","#93E9BE","Seafoam Coastal","Beach"],
+["cinnamon brown warm cozy arch","#D2691E","Cinnamon Warm","Cozy Villa"],
+["periwinkle blue lavender arch","#CCCCFF","Periwinkle","Garden"],
+["coral reef orange tropical arch","#FF7F50","Coral Tropical","Beach Resort"],
+["forest mist grey green arch","#6B8E6B","Forest Mist","Woodland"]
+];
+let isAdmin=false;let allData=[];let currentEditIndex=null;let generatedHTMLs=[];
+function checkAdmin(){if(document.getElementById('adminPass').value==='sayido123'){isAdmin=true;document.getElementById('adminStatus').innerText='✅ Admin Aktif';renderResults();}else alert('Password salah! sayido123');}
+function download100Beda(){
+  let rows=[["prompt","groom","bride","tanggal","maps","ayah_groom","ibu_groom","ayah_bride","ibu_bride","warna","lagu","tema"]];
+  const grooms=["Kevin","Ryo","Dimas","Arif","Bima","Reza","Fajar","Galih","Hendry","Wijaya","Arya","Bagas","Cakra","Dion","Eka"];
+  const brides=["Monica","Amanda","Putri","Sari","Dewi","Lestari","Ratna","Yuki","Maia","Nadia","Citra","Bella","Dinda","Elsa","Fani"];
+  for(let i=0;i<100;i++){let t=THEMES_100[i%THEMES_100.length];let g=grooms[i%grooms.length]+(i>=15?i:'');let b=brides[i%brides.length]+(i>=15?i:'');rows.push([t[0]+" couple "+g+" "+b+" "+t[2],g,b,`2025-${String((i%12)+1).padStart(2,'0')}-${String((i%28)+1).padStart(2,'0')}`,t[3],"Bpk. Hendry","Ibu Susi","Bpk. Wijaya","Ibu Dewi",t[1],"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",t[2]]);}
+  let ws=XLSX.utils.aoa_to_sheet(rows);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"100_Tema_Beda");XLSX.writeFile(wb,"SAYIDO_100_TEMA_BEDA_UNIK.xlsx");
+}
+let uploadedData=[];
+document.getElementById('excelFile').addEventListener('change',e=>{let file=e.target.files[0];let reader=new FileReader();reader.onload=ev=>{let data=new Uint8Array(ev.target.result);let wb=XLSX.read(data,{type:'array'});let ws=wb.Sheets[wb.SheetNames[0]];uploadedData=XLSX.utils.sheet_to_json(ws);document.getElementById('uploadInfo').innerHTML=`✅ ${uploadedData.length} prompt loaded`;};reader.readAsArrayBuffer(file);});
+function generateBulk(){if(uploadedData.length===0){alert('Upload Excel dulu!');return;}allData=uploadedData;generatedHTMLs=[];let prog=document.getElementById('prog');let progText=document.getElementById('progText');uploadedData.forEach((row,i)=>{setTimeout(()=>{let html=generateMoranHTML(row,i);generatedHTMLs[i]=html;prog.style.width=((i+1)/uploadedData.length*100)+'%';progText.innerText=`${i+1}/${uploadedData.length} - ${Math.round((i+1)/uploadedData.length*100)}%`;if(i===uploadedData.length-1)renderResults();},i*20);});}
+  function generateMoranHTML(row,idx){let warna=row.warna||'#D4AF37';let groom=row.groom||'Kevin';let bride=row.bride||'Monica';let tanggal=row.tanggal||'2025-12-29';let maps=row.maps||'Sheraton Surabaya';let prompt=row.prompt||'luxury arch';let tema=row.tema||prompt.slice(0,30);let id=`${groom}-${bride}-${Date.now()+idx}`.toLowerCase().replace(/[^a-z0-9-]/g,'-');return{id,groom,bride,warna,tanggal,maps,prompt,tema,html:`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${groom} & ${bride} - ${tema}</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Manrope:wght@300;400&display=swap" rel="stylesheet"><link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"><style>body{margin:0;font-family:'Manrope';background:#FAF8F5;overflow-x:hidden}.arch{width:78vw;max-width:340px;height:520px;border:2px solid ${warna};border-radius:200px 200px 20px 20px;margin:40px auto;position:relative;overflow:hidden;background:linear-gradient(180deg,#fff,#F5EFE6);box-shadow:0 20px 40px rgba(0,0,0,.1)}.arch:before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,${warna}22,transparent 60%);animation:bokeh 6s ease-in-out infinite}@keyframes bokeh{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}.content{position:relative;z-index:2;padding:60px 20px;text-align:center}.names{font-family:'Cormorant Garamond';font-size:36px;color:${warna};letter-spacing:3px}.tema-badge{background:${warna};color:#fff;padding:4px 12px;border-radius:20px;font-size:10px;letter-spacing:1px}.date{margin-top:20px;letter-spacing:2px;font-size:12px;opacity:.7}</style></head><body><div class="arch" data-aos="fade-up" data-aos-duration="1200"><div class="content"><span class="tema-badge">${tema}</span><div class="names" data-aos="fade-up" data-aos-delay="300">${groom}<br>&<br>${bride}</div><div class="date" data-aos="fade-up" data-aos-delay="600">${tanggal} • ${maps}</div><div style="margin-top:20px;font-size:11px;opacity:.5" data-aos="fade-up" data-aos-delay="900">${prompt.slice(0,80)}</div></div></div><script src="https://unpkg.com/aos@2.3.1/dist/aos.js"><\/script><script>AOS.init();<\/script></body></html>`,blobUrl:null};}
+function renderResults(){let results=document.getElementById('results');results.innerHTML='';generatedHTMLs.forEach((item,i)=>{if(!item)return;let blob=new Blob([item.html],{type:'text/html'});let url=URL.createObjectURL(blob);item.blobUrl=url;let div=document.createElement('div');div.className='inv-card';div.innerHTML=`<div style="display:flex;justify-content:space-between"><div><h3>${item.groom} & ${item.bride}</h3><span class="badge" style="background:${item.warna};color:#fff">${item.tema}</span><br><span style="font-size:11px;color:#888">${item.prompt.slice(0,60)}...</span><br><a href="${url}" target="_blank" style="font-size:11px;color:#4A90E2">/u/${item.id}.html</a></div><div style="width:40px;height:40px;border-radius:50%;background:${item.warna}"></div></div><div class="actions"><button class="primary" onclick="previewItem(${i})">👁️ Preview</button><button onclick="downloadHTML(${i})">📥 HTML</button><button onclick="openMockup(${i})">📱 Mockup Katalog</button>${isAdmin?`<button onclick="openEdit(${i})" style="background:#FFF3CD">✏️ Edit</button><button onclick="downloadVideo(${i})" style="background:#111;color:#fff">🎬 Video</button>`:''}</div>`;results.appendChild(div);});}
+function previewItem(i){window.open(generatedHTMLs[i].blobUrl,'_blank');}
+function downloadHTML(i){let a=document.createElement('a');a.href=generatedHTMLs[i].blobUrl;a.download=generatedHTMLs[i].id+'.html';a.click();}
+function openEdit(i){currentEditIndex=i;let item=generatedHTMLs[i];document.getElementById('editForm').innerHTML=`<label>Groom</label><input id="e_groom" value="${item.groom}"><label>Bride</label><input id="e_bride" value="${item.bride}"><label>Tanggal</label><input id="e_tanggal" type="date" value="${item.tanggal}"><label>Venue</label><input id="e_maps" value="${item.maps}"><label>Warna</label><input id="e_warna" type="color" value="${item.warna}"><input id="e_warna_text" value="${item.warna}"><label>Prompt</label><textarea id="e_prompt" rows="3">${item.prompt}</textarea><label>Tema</label><input id="e_tema" value="${item.tema}">`;document.getElementById('editModal').classList.add('active');}
+function saveEdit(){let i=currentEditIndex;let item=generatedHTMLs[i];item.groom=document.getElementById('e_groom').value;item.bride=document.getElementById('e_bride').value;item.tanggal=document.getElementById('e_tanggal').value;item.maps=document.getElementById('e_maps').value;item.warna=document.getElementById('e_warna').value||document.getElementById('e_warna_text').value;item.prompt=document.getElementById('e_prompt').value;item.tema=document.getElementById('e_tema').value;item.html=generateMoranHTML({groom:item.groom,bride:item.bride,tanggal:item.tanggal,maps:item.maps,warna:item.warna,prompt:item.prompt,tema:item.tema},i).html;let blob=new Blob([item.html],{type:'text/html'});item.blobUrl=URL.createObjectURL(blob);closeModal();renderResults();}
+function closeModal(){document.getElementById('editModal').classList.remove('active');}
+function openMockup(i){let item=generatedHTMLs[i];let container=document.getElementById('mockupContainer');container.innerHTML=`<div style="background:#111;padding:20px;border-radius:24px"><div style="color:#fff;font-size:12px;margin-bottom:10px;letter-spacing:2px">${item.tema.toUpperCase()} • ${item.groom} & ${item.bride}</div><div class="mockup-preview"><iframe src="${item.blobUrl}"></iframe></div><div style="color:#fff;font-size:11px;margin-top:10px;opacity:.6">SAYIDO EXCLUSIVE • ${item.warna}</div></div>`;document.getElementById('mockupModal').classList.add('active');window._mockupIndex=i;}
+function closeMockup(){document.getElementById('mockupModal').classList.remove('active');}
+async function downloadMockupPNG(){let preview=document.querySelector('#mockupContainer > div');let canvas=await html2canvas(preview,{scale:2,useCORS:true});let a=document.createElement('a');a.download=`MOCKUP-${generatedHTMLs[window._mockupIndex].id}.png`;a.href=canvas.toDataURL('image/png');a.click();}
+async function downloadVideo(i){if(!isAdmin){alert('Aktifkan admin!');return;}let item=generatedHTMLs[i];alert('🎬 Akan buka preview, silakan screen-record HP kamu 8 detik untuk video MP4. Di laptop: Windows+G untuk record.');window.open(item.blobUrl,'_blank','width=400,height=800');}
+</script>
+</body>
+</html>
